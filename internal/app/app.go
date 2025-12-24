@@ -13,10 +13,12 @@ import (
 	"order-service0/internal/repository/cache"
 	"order-service0/internal/repository/postgres"
 	"order-service0/internal/usecase"
+
 	"time"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 type App struct {
@@ -115,7 +117,7 @@ func (a *App) Run() error {
 	go a.kafkaConsumer.Start(ctx)
 
 	log.Printf("Server starting on port %s", a.config.HTTP.Port)
-	if err := a.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := a.httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("failed to start HTTP server: %w", err)
 	}
 
